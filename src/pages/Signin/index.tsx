@@ -6,7 +6,7 @@ import Button from "../../components/Button";
 
 import { Container, Content, Background } from "./styles";
 
-const SignIn: React.FC = () => (
+const SigIn: React.FC = () => (
   <Container>
     <Content>
       <form>
@@ -29,4 +29,4 @@ const SignIn: React.FC = () => (
   </Container>
 );
 
-export default SignIn;
+export default SigIn;

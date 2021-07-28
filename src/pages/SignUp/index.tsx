@@ -10,7 +10,7 @@ import Button from "../../components/Button";
 
 import { Container, Content, Background } from "./styles";
 
-const SigIn: React.FC = () => {
+const SigUp: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
 
   const handleSubmit = useCallback(async (data: object) => {
@@ -60,4 +60,4 @@ const SigIn: React.FC = () => {
   );
 };
 
-export default SigIn;
+export default SigUp;

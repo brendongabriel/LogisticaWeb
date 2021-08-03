@@ -4,11 +4,12 @@ import { FormHandles } from "@unform/core";
 import * as Yup from "yup";
 import getValidationErrors from "../../utils/getValidationErrors";
 import { Form } from "@unform/web";
-import { AuthContext } from "../../context/AuthContext";
+import { useAuth } from "../../hooks/auth";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 
 import { Container, Content, Background } from "./styles";
+import { useToast } from "../../hooks/toast";
 
 // tipos de dados que vao ser atribuidos do formulario
 interface SignInFormData {
@@ -19,7 +20,8 @@ interface SignInFormData {
 const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
 
-  const { signIn } = useContext(AuthContext);
+  const { signIn } = useAuth();
+  const { addToast } = useToast();
 
   const handleSubmit = useCallback(async (data: SignInFormData) => {
     try {
@@ -43,8 +45,13 @@ const SignIn: React.FC = () => {
     } catch (err) {
       const errors = getValidationErrors(err);
       formRef.current?.setErrors(errors);
+      addToast({
+        type: "error",
+        title: "Erro na autenticacao",
+        description: "Ocorreu um erro ao fazer login",
+      });
     }
-  }, [signIn]);
+  }, [signIn, addToast]);
   return (
     <Container>
       <Content>

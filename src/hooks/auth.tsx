@@ -1,5 +1,6 @@
 // create context biblioteca que vai criar o contexto para receber dados
 import React, { createContext, useCallback, useState } from "react";
+import { useContext } from "react";
 import api from "../service/api";
 
 // criando interface pra armazenar os dados do token
@@ -17,9 +18,10 @@ interface SignInCredentials {
 interface AuthContextData { 
     // criando um parametro e renomeando para ser do tipo Signincredentials depois do dois pontos
     signIn(credentials: SignInCredentials): Promise<void>;
+    signOut(): void;
 };
 
-export const AuthContext = createContext<AuthContextData>(
+const AuthContext = createContext<AuthContextData>(
     {} as AuthContextData
 );
 
@@ -50,10 +52,25 @@ export const AuthProvider: React.FC = ({ children }) => {
         localStorage.setItem("@Logistica:token", jwt);
         setData(jwt);
     }, []);
+
+    const signOut = useCallback(
+        () => {localStorage.removeItem("@Logistica:token");
+        setData({} as AuthState);
+    }, []);
     
     return(
-      <AuthContext.Provider value={{signIn}}>
+      <AuthContext.Provider value={{signIn, signOut}}>
           {children}
       </AuthContext.Provider>  
     );
 };
+
+export function useAuth(): AuthContextData{
+    const context = useContext(AuthContext);
+
+    if(!context) {
+        throw new Error('useAuth must be use withing an AuthProvider')
+    }
+
+    return context;
+}

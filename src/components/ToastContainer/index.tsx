@@ -1,60 +1,27 @@
 import React from "react";
-import { FiAlertCircle, FiXCircle } from "react-icons/fi";
-import { Container, Toast } from "./styles";
+import { Container } from "./styles";
+import Toast from "./Toast";
+import {useTransition} from "react-spring";
+import { ToastMessage } from "../../hooks/toast";
 
-const ToastContainer: React.FC = () => {
+interface ToastContainerProps{
+    message: ToastMessage[];
+}
+const ToastContainer: React.FC<ToastContainerProps> = ({message}) => {
+    const messagesWithTransition = useTransition(
+        message,
+        message => message.id,
+        {
+            from: { top: '- 120%', opacity: 0},
+            enter:{right: '0%', opacity: 1},
+            leave: {top: '120%', opacity: 0}
+        }
+    )
     return (
         <Container>
-            <Toast hasDescription>
-                <FiAlertCircle size={20} />
-
-                <div>
-                    <strong>Aconteceu um erro</strong>
-                    <p>Nao foi possivel fazer login</p>
-                </div>
-
-                <button>
-                    <FiXCircle size={20} />
-                </button>   
-            </Toast>
-
-            <Toast type="success" hasDescription>
-                <FiAlertCircle size={20} />
-
-                <div>
-                    <strong>Aconteceu um erro</strong>
-                    <p>Nao foi possivel fazer login</p>
-                </div>
-
-                <button>
-                    <FiXCircle size={20} />
-                </button>   
-            </Toast>
-
-            <Toast type="error" hasDescription>
-                <FiAlertCircle size={20} />
-
-                <div>
-                    <strong>Aconteceu um erro</strong>
-                    <p>Nao foi possivel fazer login</p>
-                </div>
-
-                <button>
-                    <FiXCircle size={20} />
-                </button>   
-            </Toast>
-            
-            <Toast type="success" hasDescription={false}>
-                <FiAlertCircle size={20} />
-
-                <div>
-                    <strong>Aconteceu um erro</strong>
-                </div>
-
-                <button>
-                    <FiXCircle size={20} />
-                </button>   
-            </Toast>
+            {messagesWithTransition.map(({item, key, props}) =>(
+            <Toast key={key} style={props} message={item}/>
+            ))}
         </Container>
     );
 };

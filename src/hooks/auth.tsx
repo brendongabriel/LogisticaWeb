@@ -1,8 +1,11 @@
-import React, { createContext, useCallback, useState, useContext } from "react";
-import api from "../service/api";
+import React, { createContext, useCallback, useState } from "react";
+import { useContext } from "react";
+
+import api from "../services/api";
 
 interface AuthState {
   jwt: string;
+  usuario: object;
 }
 
 interface SignInCredentials {
@@ -12,52 +15,59 @@ interface SignInCredentials {
 
 interface AuthContextData {
   signIn(credentials: SignInCredentials): Promise<void>;
-  signOut(): void;
+  usuario: object;
+  signOut(): void
 }
 
-const AuthContext = createContext<AuthContextData>({} as AuthContextData);
+export const AuthContext = createContext<AuthContextData>(
+  {} as AuthContextData
+);
 
-export const AuthProvider: React.FC = ({ children }) => {
+export const AuthProvider: React.FC = ({children}) => {
   const [data, setData] = useState<AuthState>(() => {
     const jwt = localStorage.getItem("@Logistica:token");
+    const usuario = localStorage.getItem("@Logistica:usuario")
 
-    if (jwt) {
-      return { jwt };
+    if (jwt && usuario) {
+      return { jwt , usuario: JSON.parse(usuario)};
     }
 
     return {} as AuthState;
   });
 
-  const signIn = useCallback(async ({ email, senha }) => {
-    const respose = await api.post("authenticate", {
+  const signIn = useCallback( async ({email, senha}) => {
+    const response = await api.post("authenticate", {
       email,
-      senha,
+      senha
     });
 
-    const { jwt } = respose.data;
+    const { jwt, usuario } = response.data;
 
     localStorage.setItem("@Logistica:token", jwt);
-    setData(jwt);
+    localStorage.setItem("@Logistica:usuario", JSON.stringify(usuario))
+    setData({ jwt, usuario });
   }, []);
 
   const signOut = useCallback(() => {
-    localStorage.removeItem("@Logistica:token");
+    localStorage.removeItem("Logistica:token");
+    localStorage.removeItem("Logistica:usuario");
 
     setData({} as AuthState);
-  }, []);
+
+  }, [])
 
   return (
-    <AuthContext.Provider value={{ signIn, signOut }}>
+    <AuthContext.Provider value={{usuario: data.usuario, signIn, signOut}}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
 export function useAuth(): AuthContextData {
   const context = useContext(AuthContext);
 
-  if (!context) {
-    throw new Error("useAuth must be used withing an AuthProvider");
+  if(!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
   }
 
   return context;

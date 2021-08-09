@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { shade } from "polished";
 
-import brayan from "../../assets/brayan.jpg";
+import backgroundSignIn from "../../assets/background-sigin.jpg";
 
 export const Container = styled.div`
   height: 100vh;
@@ -66,6 +66,6 @@ export const Content = styled.div`
 
 export const Background = styled.div`
   flex: 1;
-  background: url(${brayan}) no-repeat center;
+  background: url(${backgroundSignIn}) no-repeat center;
   background-size: cover;
 `;

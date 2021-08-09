@@ -1,21 +1,22 @@
-import React, { useRef, useCallback, useContext } from "react";
+import React, { useRef, useCallback } from "react";
 import { FiLogIn, FiMail, FiLock } from "react-icons/fi";
 import { FormHandles } from "@unform/core";
-import * as Yup from "yup";
-import getValidationErrors from "../../utils/getValidationErrors";
 import { Form } from "@unform/web";
+import * as Yup from "yup";
+
 import { useAuth } from "../../hooks/auth";
+import { useToast } from "../../hooks/toast";
+import getValidationErrors from "../../utils/getValidationErrors";
+
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 
 import { Container, Content, Background } from "./styles";
-import { useToast } from "../../hooks/toast";
 
-// tipos de dados que vao ser atribuidos do formulario
-interface SignInFormData {
+interface SingInFormData {
   email: string;
   senha: string;
-};
+}
 
 const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
@@ -23,35 +24,40 @@ const SignIn: React.FC = () => {
   const { signIn } = useAuth();
   const { addToast } = useToast();
 
-  const handleSubmit = useCallback(async (data: SignInFormData) => {
-    try {
-      formRef.current?.setErrors({});
+  const handleSubmit = useCallback(
+    async (data: SingInFormData) => {
+      try {
+        formRef.current?.setErrors({});
 
-      const schema = Yup.object().shape({
-        email: Yup.string()
-          .required("E-mail obrigatório")
-          .email("Informe um e-mail válido"),
-        senha: Yup.string().required("Senha obrigatoria")
-      });
+        const schema = Yup.object().shape({
+          email: Yup.string()
+            .required("E-mail obrigatório")
+            .email("Informe um e-mail válido"),
+          senha: Yup.string().required("Senha obrigatória"),
+        });
 
-      await schema.validate(data, {
-        abortEarly: false,
-      });
+        await schema.validate(data, {
+          abortEarly: false,
+        });
 
-      signIn({
-        email: data.email,
-        senha: data.senha
-      })
-    } catch (err) {
-      const errors = getValidationErrors(err);
-      formRef.current?.setErrors(errors);
-      addToast({
-        type: "error",
-        title: "Erro na autenticacao",
-        description: "Ocorreu um erro ao fazer login",
-      });
-    }
-  }, [signIn, addToast]);
+        signIn({
+          email: data.email,
+          senha: data.senha,
+        });
+      } catch (err) {
+        const errors = getValidationErrors(err);
+        formRef.current?.setErrors(errors);
+
+        addToast({
+          type: "error",
+          title: "Erro na autenticação",
+          description: "Ocorreu um erro ao fazer login, cheque as credenciais.",
+        });
+      }
+    },
+    [signIn, addToast]
+  );
+
   return (
     <Container>
       <Content>
@@ -59,7 +65,12 @@ const SignIn: React.FC = () => {
           <h1>Faça seu login</h1>
 
           <Input icon={FiMail} name="email" placeholder="E-mail" />
-          <Input icon={FiLock} name="senha" type="password" placeholder="Senha" />
+          <Input
+            icon={FiLock}
+            name="senha"
+            type="password"
+            placeholder="Senha"
+          />
 
           <Button type="submit">Entrar</Button>
 
@@ -73,6 +84,7 @@ const SignIn: React.FC = () => {
       </Content>
       <Background />
     </Container>
-)};
+  );
+};
 
 export default SignIn;
